@@ -1,6 +1,6 @@
 package com.r3.developers.csdetemplate.utxoexample.workflows
 
-import com.r3.developers.csdetemplate.utxoexample.states.ChatState
+import com.r3.developers.csdetemplate.utxoexample.states.IOUState
 import net.corda.v5.application.flows.*
 import net.corda.v5.application.messaging.FlowMessaging
 import net.corda.v5.application.messaging.FlowSession
@@ -83,13 +83,11 @@ class FinalizeChatResponderFlow: ResponderFlow {
             val finalizedSignedTransaction = ledgerService.receiveFinality(session) { ledgerTransaction ->
 
                 // Note, this exception will only be shown in the logs if Corda Logging is set to debug.
-                val state = ledgerTransaction.getOutputStates(ChatState::class.java).singleOrNull() ?:
+                val state = ledgerTransaction.getOutputStates(IOUState::class.java).singleOrNull() ?:
                     throw CordaRuntimeException("Failed verification - transaction did not have exactly one output ChatState.")
 
                 // Uses checkForBannedWords() and checkMessageFromMatchesCounterparty() functions
                 // to check whether to sign the transaction.
-                checkForBannedWords(state.message)
-                checkMessageFromMatchesCounterparty(state, session.counterparty)
 
                 log.info("Verified the transaction- ${ledgerTransaction.id}")
             }

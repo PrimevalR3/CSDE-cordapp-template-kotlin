@@ -1,6 +1,6 @@
 package com.r3.developers.csdetemplate.utxoexample.states
 
-import com.r3.developers.csdetemplate.utxoexample.contracts.ChatContract
+import com.r3.developers.csdetemplate.utxoexample.contracts.IOUContract
 import net.corda.v5.base.types.MemberX500Name
 import net.corda.v5.ledger.utxo.BelongsToContract
 import net.corda.v5.ledger.utxo.ContractState
@@ -13,25 +13,25 @@ import java.util.*
 // Each ChatState stores one message between the two participants in the chat. The backchain of ChatStates
 // represents the history of the chat.
 
-@BelongsToContract(ChatContract::class)
-data class ChatState(
-    // Unique identifier for the chat.
-    val id : UUID = UUID.randomUUID(),
-    // Non-unique name for the chat.
-    val chatName: String,
-    // The MemberX500Name of the participant who sent the message.
-    val messageFrom: MemberX500Name,
-    // The message
-    val message: String,
-    // The participants to the chat, represented by their public key.
-    private val participants: List<PublicKey>) : ContractState {
+@BelongsToContract(IOUContract::class)
+data class IOUState (
+
+    //private variables
+    val amount: Int,
+    val lender: MemberX500Name,
+    val borrower: MemberX500Name,
+    val paid: Int,
+    val linearId: UUID,
+    private val participants: List<PublicKey>
+) : ContractState {
+
+    //Helper method for settle flow
+    fun pay(amountToPay: Int) : IOUState {
+        return IOUState(amount,lender,borrower,paid+amountToPay,linearId,participants)
+    }
 
     override fun getParticipants(): List<PublicKey> {
         return participants
     }
-
-    // Helper function to create a new ChatState from the previous (input) ChatState.
-    fun updateMessage(messageFrom: MemberX500Name, message: String) =
-        copy(messageFrom = messageFrom, message = message)
 }
 
